@@ -1,0 +1,590 @@
+{% extends "base.html" %}
+
+{% block title %}RIC - Análisis de Enseñanza{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                <i data-feather="graduation-cap" class="me-3"></i>
+                Mejora tu Enseñanza con IA
+            </h1>
+            <p class="lead text-muted mb-4">
+                RIC analiza tu audio de clase y proporciona retroalimentación educativa personalizada 
+                según el grado y materia que enseñas. Obtén consejos específicos para mejorar tu técnica pedagógica.
+            </p>
+            <div class="d-flex gap-3 mb-4">
+                <div class="feature-badge">
+                    <i data-feather="volume-2" class="me-2"></i>
+                    Análisis de Voz
+                </div>
+                <div class="feature-badge">
+                    <i data-feather="users" class="me-2"></i>
+                    Feedback por Grado
+                </div>
+                <div class="feature-badge">
+                    <i data-feather="book-open" class="me-2"></i>
+                    Consejos Pedagógicos
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <!-- Upload Form -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i data-feather="mic" class="me-2"></i>
+                        Analizar Clase
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('upload_audio') }}" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <!-- Educational Context -->
+                        <div class="educational-context mb-4">
+                            <h6 class="text-muted mb-3">
+                                <i data-feather="info" class="me-2"></i>
+                                Contexto Educativo
+                            </h6>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="subject" class="form-label">Materia/Asignatura</label>
+                                    <select class="form-select" id="subject" name="subject" required>
+                                        <option value="">Selecciona una materia</option>
+                                        <option value="Matemáticas">Matemáticas</option>
+                                        <option value="Español">Español / Lenguaje</option>
+                                        <option value="Ciencias Naturales">Ciencias Naturales</option>
+                                        <option value="Ciencias Sociales">Ciencias Sociales / Historia</option>
+                                        <option value="Inglés">Inglés</option>
+                                        <option value="Educación Física">Educación Física</option>
+                                        <option value="Arte">Arte / Educación Artística</option>
+                                        <option value="Tecnología">Tecnología</option>
+                                        <option value="Física">Física</option>
+                                        <option value="Química">Química</option>
+                                        <option value="Biología">Biología</option>
+                                        <option value="Otro">Otra materia</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="grade_level" class="form-label">Grado Escolar</label>
+                                    <select class="form-select" id="grade_level" name="grade_level" required>
+                                        <option value="">Selecciona el grado</option>
+                                        <option value="Preescolar">Preescolar</option>
+                                        <option value="1° Primaria">1° Primaria</option>
+                                        <option value="2° Primaria">2° Primaria</option>
+                                        <option value="3° Primaria">3° Primaria</option>
+                                        <option value="4° Primaria">4° Primaria</option>
+                                        <option value="5° Primaria">5° Primaria</option>
+                                        <option value="6° Primaria">6° Primaria</option>
+                                        <option value="1° Secundaria">1° Secundaria</option>
+                                        <option value="2° Secundaria">2° Secundaria</option>
+                                        <option value="3° Secundaria">3° Secundaria</option>
+                                        <option value="1° Preparatoria">1° Preparatoria</option>
+                                        <option value="2° Preparatoria">2° Preparatoria</option>
+                                        <option value="3° Preparatoria">3° Preparatoria</option>
+                                        <option value="Universidad">Universidad</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3 mt-2">
+                                <div class="col-12">
+                                    <label for="lesson_topic" class="form-label">Tema de la Clase</label>
+                                    <input type="text" class="form-control" id="lesson_topic" name="lesson_topic" 
+                                           placeholder="Ej: Fracciones, La Revolución Mexicana, Ecosistemas, etc." required>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3 mt-2">
+                                <div class="col-12">
+                                    <label for="additional_context" class="form-label">Contexto Adicional (Opcional)</label>
+                                    <textarea class="form-control" id="additional_context" name="additional_context" rows="2" 
+                                              placeholder="Información adicional que ayude al análisis: tipo de actividad, dificultades esperadas, objetivos específicos, etc."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Audio Upload -->
+                        <div class="upload-section">
+                            <h6 class="text-muted mb-3">
+                                <i data-feather="upload" class="me-2"></i>
+                                Audio de la Clase
+                            </h6>
+                            
+                            <!-- Recording/Upload Options -->
+                            <div class="audio-options mb-3">
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-outline-primary" id="recordBtn">
+                                        <i data-feather="mic" class="me-2"></i>
+                                        Grabar Audio
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" id="uploadBtn2" onclick="document.getElementById('audioFile').click()">
+                                        <i data-feather="upload" class="me-2"></i>
+                                        Subir Archivo
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Recording Interface -->
+                            <div id="recordingInterface" class="recording-interface d-none mb-3">
+                                <div class="text-center p-4 border rounded">
+                                    <div class="recording-icon mb-3">
+                                        <i data-feather="mic" class="recording-pulse" style="width: 48px; height: 48px; color: #dc3545;"></i>
+                                    </div>
+                                    <h6 id="recordingStatus">Preparando micrófono...</h6>
+                                    <div id="recordingTimer" class="fw-bold text-primary fs-4 mb-3">00:00</div>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button type="button" class="btn btn-success" id="startRecordBtn">
+                                            <i data-feather="play" class="me-2"></i>
+                                            Iniciar
+                                        </button>
+                                        <button type="button" class="btn btn-danger d-none" id="stopRecordBtn">
+                                            <i data-feather="stop" class="me-2"></i>
+                                            Detener
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="cancelRecordBtn">
+                                            <i data-feather="x" class="me-2"></i>
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- File Upload Area -->
+                            <div id="uploadArea" class="upload-area mb-3" onclick="document.getElementById('audioFile').click()">
+                                <div class="upload-content">
+                                    <i data-feather="upload" class="upload-icon"></i>
+                                    <h6 class="mt-3">Haz clic para seleccionar archivo de audio</h6>
+                                    <p class="text-muted small mb-0">
+                                        Formatos soportados: MP3, WAV, M4A, OGG, FLAC<br>
+                                        Tamaño máximo: 100MB
+                                    </p>
+                                </div>
+                                <input type="file" id="audioFile" name="audio_file" accept=".mp3,.wav,.m4a,.ogg,.flac" style="display: none;">
+                            </div>
+                            
+                            <!-- Recorded Audio Preview -->
+                            <div id="recordedAudioInfo" class="alert alert-success d-none">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <i data-feather="mic" class="me-2"></i>
+                                        <span id="recordedFileName">Grabación completada</span>
+                                        <small class="text-muted d-block">Duración: <span id="recordedDuration">00:00</span></small>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary me-2" id="playRecordedBtn">
+                                            <i data-feather="play" class="me-1"></i>
+                                            Reproducir
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" id="deleteRecordedBtn">
+                                            <i data-feather="trash-2" class="me-1"></i>
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                                <audio id="recordedAudioPlayer" class="d-none" controls></audio>
+                            </div>
+                            
+                            <div id="fileInfo" class="alert alert-info d-none">
+                                <i data-feather="file" class="me-2"></i>
+                                <span id="fileName"></span>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                            <i data-feather="zap" class="me-2"></i>
+                            Analizar mi Clase
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Analyses -->
+    {% if recent_analyses %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="h4 mb-4">
+                <i data-feather="clock" class="me-2"></i>
+                Análisis Recientes
+            </h2>
+            <div class="row g-3">
+                {% for analysis in recent_analyses %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 analysis-card">
+                        <div class="card-body">
+                            <!-- Subject Badge -->
+                            {% if analysis.subject %}
+                            <div class="subject-badge mb-2">
+                                <span class="badge bg-subject-{{ analysis.subject|replace(' ', '_')|replace('/', '_')|lower }}">
+                                    <i data-feather="book" class="me-1"></i>
+                                    {{ analysis.subject }}
+                                </span>
+                                {% if analysis.grade_level %}
+                                <span class="badge bg-grade ms-1">
+                                    {{ analysis.grade_level }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Lesson Topic -->
+                            {% if analysis.lesson_topic %}
+                            <h6 class="card-title lesson-topic">{{ analysis.lesson_topic }}</h6>
+                            {% else %}
+                            <h6 class="card-title">{{ analysis.original_filename[:30] }}{% if analysis.original_filename|length > 30 %}...{% endif %}</h6>
+                            {% endif %}
+                            
+                            <p class="card-text text-soft small mb-3">
+                                <i data-feather="calendar" class="me-1"></i>
+                                {{ analysis.upload_timestamp.strftime('%d/%m/%Y %H:%M') }}
+                            </p>
+                            
+                            <!-- Score if completed -->
+                            {% if analysis.status == 'completed' and analysis.ric_feedback %}
+                                {% set feedback = analysis.get_ric_feedback() %}
+                                {% if feedback and feedback.overall_score %}
+                                <div class="score-preview mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                            <div class="progress-bar score-bar" 
+                                                 style="width: {{ feedback.overall_score }}%; background: {{ 'linear-gradient(90deg, #10b981, #059669)' if feedback.overall_score >= 80 else 'linear-gradient(90deg, #f59e0b, #d97706)' if feedback.overall_score >= 60 else 'linear-gradient(90deg, #ef4444, #dc2626)' }}"></div>
+                                        </div>
+                                        <small class="fw-bold score-text">{{ feedback.overall_score }}/100</small>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                            
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="badge status-badge-{% if analysis.status == 'completed' %}success{% elif analysis.status == 'error' %}danger{% else %}warning{% endif %}">
+                                    {% if analysis.status == 'completed' %}
+                                        <i data-feather="check-circle" class="me-1"></i>
+                                        Completado
+                                    {% elif analysis.status == 'error' %}
+                                        <i data-feather="alert-circle" class="me-1"></i>
+                                        Error
+                                    {% else %}
+                                        <i data-feather="clock" class="me-1"></i>
+                                        Procesando
+                                    {% endif %}
+                                </span>
+                                <a href="{{ url_for('analyze', analysis_id=analysis.id) }}" class="btn btn-soft-primary btn-sm">
+                                    <i data-feather="eye" class="me-1"></i>
+                                    Ver Análisis
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Features Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-5">¿Cómo funciona RIC?</h2>
+            <div class="row g-4">
+                <div class="col-md-4 text-center">
+                    <div class="feature-icon mb-3">
+                        <i data-feather="upload-cloud"></i>
+                    </div>
+                    <h5>1. Contexto + Audio</h5>
+                    <p class="text-muted">
+                        Proporciona el grado, materia y tema de tu clase junto con el audio para un análisis preciso.
+                    </p>
+                </div>
+                
+                <div class="col-md-4 text-center">
+                    <div class="feature-icon mb-3">
+                        <i data-feather="search"></i>
+                    </div>
+                    <h5>2. Análisis Pedagógico</h5>
+                    <p class="text-muted">
+                        IA evalúa si tu lenguaje y técnicas son apropiados para el nivel educativo de tus estudiantes.
+                    </p>
+                </div>
+                
+                <div class="col-md-4 text-center">
+                    <div class="feature-icon mb-3">
+                        <i data-feather="star"></i>
+                    </div>
+                    <h5>3. Consejos Específicos</h5>
+                    <p class="text-muted">
+                        Recibe sugerencias personalizadas: desde simplificar conceptos hasta usar mejores analogías.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+class AudioRecorder {
+    constructor() {
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.recordedBlob = null;
+        this.startTime = null;
+        this.timerInterval = null;
+        this.stream = null;
+        
+        this.initializeElements();
+        this.setupEventListeners();
+    }
+    
+    initializeElements() {
+        this.recordBtn = document.getElementById('recordBtn');
+        this.uploadBtn2 = document.getElementById('uploadBtn2');
+        this.recordingInterface = document.getElementById('recordingInterface');
+        this.uploadArea = document.getElementById('uploadArea');
+        this.startRecordBtn = document.getElementById('startRecordBtn');
+        this.stopRecordBtn = document.getElementById('stopRecordBtn');
+        this.cancelRecordBtn = document.getElementById('cancelRecordBtn');
+        this.recordingStatus = document.getElementById('recordingStatus');
+        this.recordingTimer = document.getElementById('recordingTimer');
+        this.recordedAudioInfo = document.getElementById('recordedAudioInfo');
+        this.recordedFileName = document.getElementById('recordedFileName');
+        this.recordedDuration = document.getElementById('recordedDuration');
+        this.playRecordedBtn = document.getElementById('playRecordedBtn');
+        this.deleteRecordedBtn = document.getElementById('deleteRecordedBtn');
+        this.recordedAudioPlayer = document.getElementById('recordedAudioPlayer');
+        this.fileInput = document.getElementById('audioFile');
+        this.fileInfo = document.getElementById('fileInfo');
+        this.fileName = document.getElementById('fileName');
+        this.uploadForm = document.getElementById('uploadForm');
+        this.submitBtn = document.getElementById('submitBtn');
+    }
+    
+    setupEventListeners() {
+        this.recordBtn.addEventListener('click', () => this.showRecordingInterface());
+        this.uploadBtn2.addEventListener('click', () => this.showUploadInterface());
+        this.startRecordBtn.addEventListener('click', () => this.startRecording());
+        this.stopRecordBtn.addEventListener('click', () => this.stopRecording());
+        this.cancelRecordBtn.addEventListener('click', () => this.cancelRecording());
+        this.playRecordedBtn.addEventListener('click', () => this.playRecordedAudio());
+        this.deleteRecordedBtn.addEventListener('click', () => this.deleteRecordedAudio());
+        
+        // File input handling
+        this.fileInput.addEventListener('change', (e) => this.handleFileSelection(e));
+        
+        // Form submission
+        this.uploadForm.addEventListener('submit', (e) => this.handleFormSubmission(e));
+    }
+    
+    async showRecordingInterface() {
+        this.recordingInterface.classList.remove('d-none');
+        this.uploadArea.classList.add('d-none');
+        this.recordedAudioInfo.classList.add('d-none');
+        this.fileInfo.classList.add('d-none');
+        
+        try {
+            this.stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 44100
+                } 
+            });
+            this.recordingStatus.textContent = 'Listo para grabar';
+            this.startRecordBtn.classList.remove('d-none');
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+            this.recordingStatus.textContent = 'Error: No se puede acceder al micrófono';
+            this.startRecordBtn.classList.add('d-none');
+        }
+        
+        feather.replace();
+    }
+    
+    showUploadInterface() {
+        this.recordingInterface.classList.add('d-none');
+        this.uploadArea.classList.remove('d-none');
+        this.recordedAudioInfo.classList.add('d-none');
+        
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+    }
+    
+    startRecording() {
+        if (!this.stream) {
+            alert('Error: No hay acceso al micrófono');
+            return;
+        }
+        
+        this.audioChunks = [];
+        this.mediaRecorder = new MediaRecorder(this.stream);
+        
+        this.mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                this.audioChunks.push(event.data);
+            }
+        };
+        
+        this.mediaRecorder.onstop = () => {
+            this.recordedBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+            this.showRecordedAudio();
+        };
+        
+        this.mediaRecorder.start();
+        this.startTime = Date.now();
+        this.startTimer();
+        
+        this.recordingStatus.textContent = '🔴 Grabando...';
+        this.startRecordBtn.classList.add('d-none');
+        this.stopRecordBtn.classList.remove('d-none');
+    }
+    
+    stopRecording() {
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            this.mediaRecorder.stop();
+            this.stopTimer();
+            
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => track.stop());
+                this.stream = null;
+            }
+        }
+    }
+    
+    cancelRecording() {
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            this.mediaRecorder.stop();
+            this.stopTimer();
+        }
+        
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+        
+        this.recordingInterface.classList.add('d-none');
+        this.uploadArea.classList.remove('d-none');
+        this.audioChunks = [];
+        this.recordedBlob = null;
+    }
+    
+    startTimer() {
+        this.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            this.recordingTimer.textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+    
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+    
+    showRecordedAudio() {
+        const duration = this.recordingTimer.textContent;
+        const timestamp = new Date().toLocaleTimeString('es-ES', { 
+            hour12: false, 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        this.recordedFileName.textContent = `Grabación ${timestamp}`;
+        this.recordedDuration.textContent = duration;
+        
+        // Create audio URL for playback
+        const audioUrl = URL.createObjectURL(this.recordedBlob);
+        this.recordedAudioPlayer.src = audioUrl;
+        
+        this.recordingInterface.classList.add('d-none');
+        this.recordedAudioInfo.classList.remove('d-none');
+        
+        // Create a File object from the blob for form submission
+        const timestamp2 = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+        const file = new File([this.recordedBlob], `grabacion_${timestamp2}.wav`, {
+            type: 'audio/wav',
+            lastModified: Date.now()
+        });
+        
+        // Update file input with recorded file
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        this.fileInput.files = dataTransfer.files;
+        this.fileInput.required = false; // Remove required since we have a recorded file
+        
+        feather.replace();
+    }
+    
+    playRecordedAudio() {
+        if (this.recordedAudioPlayer.paused) {
+            this.recordedAudioPlayer.play();
+            this.playRecordedBtn.innerHTML = '<i data-feather="pause" class="me-1"></i>Pausar';
+        } else {
+            this.recordedAudioPlayer.pause();
+            this.playRecordedBtn.innerHTML = '<i data-feather="play" class="me-1"></i>Reproducir';
+        }
+        feather.replace();
+    }
+    
+    deleteRecordedAudio() {
+        this.recordedBlob = null;
+        this.audioChunks = [];
+        this.recordedAudioInfo.classList.add('d-none');
+        this.uploadArea.classList.remove('d-none');
+        
+        // Clear file input
+        this.fileInput.value = '';
+        this.fileInput.required = true;
+        
+        // Reset audio player
+        this.recordedAudioPlayer.src = '';
+        this.playRecordedBtn.innerHTML = '<i data-feather="play" class="me-1"></i>Reproducir';
+        
+        feather.replace();
+    }
+    
+    handleFileSelection(e) {
+        const file = e.target.files[0];
+        if (file) {
+            this.fileName.textContent = file.name;
+            this.fileInfo.classList.remove('d-none');
+            this.recordedAudioInfo.classList.add('d-none');
+            
+            feather.replace();
+        }
+    }
+    
+    handleFormSubmission(e) {
+        const hasFile = this.fileInput.files && this.fileInput.files.length > 0;
+        const hasRecording = this.recordedBlob !== null;
+        
+        if (!hasFile && !hasRecording) {
+            e.preventDefault();
+            alert('Por favor graba un audio o selecciona un archivo de audio.');
+            return;
+        }
+        
+        // Show loading state
+        this.submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analizando...';
+        this.submitBtn.disabled = true;
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    new AudioRecorder();
+});
+</script>
+{% endblock %}

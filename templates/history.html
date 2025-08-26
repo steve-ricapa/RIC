@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Análisis - RIC{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                    <li class="breadcrumb-item active">Historial</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1 class="h3 mb-1">Historial de Análisis</h1>
+                    <p class="text-muted mb-0">
+                        <i data-feather="archive" class="me-1"></i>
+                        Todos tus análisis de clase anteriores
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i data-feather="plus" class="me-2"></i>
+                        Nuevo Análisis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i data-feather="file-audio"></i>
+                </div>
+                <div class="metric-value">{{ analyses|length }}</div>
+                <div class="metric-label">Total de Análisis</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i data-feather="check-circle"></i>
+                </div>
+                <div class="metric-value">{{ analyses|selectattr('status', 'equalto', 'completed')|list|length }}</div>
+                <div class="metric-label">Completados</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i data-feather="clock"></i>
+                </div>
+                <div class="metric-value">{{ analyses|selectattr('status', 'equalto', 'processing')|list|length }}</div>
+                <div class="metric-label">En Proceso</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i data-feather="alert-circle"></i>
+                </div>
+                <div class="metric-value">{{ analyses|selectattr('status', 'equalto', 'error')|list|length }}</div>
+                <div class="metric-label">Con Errores</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analyses List -->
+    <div class="row">
+        <div class="col-12">
+            {% if analyses %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i data-feather="list" class="me-2"></i>
+                            Análisis Realizados
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Archivo</th>
+                                        <th>Fecha de Subida</th>
+                                        <th>Estado</th>
+                                        <th>Puntuación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for analysis in analyses %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i data-feather="file-audio" class="me-2 text-soft"></i>
+                                                <div>
+                                                    {% if analysis.subject %}
+                                                    <div class="subject-info mb-1">
+                                                        <span class="badge bg-subject-{{ analysis.subject|replace(' ', '_')|replace('/', '_')|lower }} me-1" style="font-size: 0.7rem;">
+                                                            {{ analysis.subject }}
+                                                        </span>
+                                                        {% if analysis.grade_level %}
+                                                        <span class="badge bg-grade" style="font-size: 0.7rem;">
+                                                            {{ analysis.grade_level }}
+                                                        </span>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endif %}
+                                                    <div class="fw-medium lesson-title">
+                                                        {% if analysis.lesson_topic %}
+                                                            {{ analysis.lesson_topic }}
+                                                        {% else %}
+                                                            {{ analysis.original_filename[:40] }}{% if analysis.original_filename|length > 40 %}...{% endif %}
+                                                        {% endif %}
+                                                    </div>
+                                                    {% if analysis.analysis_timestamp %}
+                                                        <small class="text-soft">
+                                                            Analizado: {{ analysis.analysis_timestamp.strftime('%d/%m/%Y %H:%M') }}
+                                                        </small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary">
+                                                {{ analysis.upload_timestamp.strftime('%d/%m/%Y') }}
+                                                <br>
+                                                <small class="text-soft">{{ analysis.upload_timestamp.strftime('%H:%M') }}</small>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge status-badge-{% if analysis.status == 'completed' %}success{% elif analysis.status == 'error' %}danger{% elif analysis.status == 'processing' %}warning{% else %}secondary{% endif %}">
+                                                {% if analysis.status == 'completed' %}
+                                                    <i data-feather="check-circle" class="me-1"></i>
+                                                    Completado
+                                                {% elif analysis.status == 'error' %}
+                                                    <i data-feather="alert-circle" class="me-1"></i>
+                                                    Error
+                                                {% elif analysis.status == 'processing' %}
+                                                    <i data-feather="clock" class="me-1"></i>
+                                                    Procesando
+                                                {% else %}
+                                                    <i data-feather="upload" class="me-1"></i>
+                                                    Subido
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if analysis.status == 'completed' and analysis.ric_feedback %}
+                                                {% set feedback = analysis.get_ric_feedback() %}
+                                                {% if feedback and feedback.overall_score %}
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="progress me-2" style="width: 60px; height: 8px; border-radius: 4px;">
+                                                            <div class="progress-bar" 
+                                                                 style="width: {{ feedback.overall_score }}%; background: {{ 'linear-gradient(90deg, #10b981, #059669)' if feedback.overall_score >= 80 else 'linear-gradient(90deg, #f59e0b, #d97706)' if feedback.overall_score >= 60 else 'linear-gradient(90deg, #ef4444, #dc2626)' }}; border-radius: 4px;">
+                                                            </div>
+                                                        </div>
+                                                        <span class="fw-medium score-text">{{ feedback.overall_score }}/100</span>
+                                                    </div>
+                                                {% else %}
+                                                    <span class="text-soft">-</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-soft">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('analyze', analysis_id=analysis.id) }}" 
+                                                   class="btn btn-soft-primary btn-sm">
+                                                    <i data-feather="eye" class="me-1"></i>
+                                                    Ver
+                                                </a>
+                                                {% if analysis.status == 'completed' %}
+                                                    <button class="btn btn-soft-primary btn-sm" 
+                                                            onclick="exportAnalysis({{ analysis.id }})"
+                                                            title="Exportar resultados">
+                                                        <i data-feather="download"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i data-feather="folder" style="width: 64px; height: 64px;" class="text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">No hay análisis previos</h4>
+                    <p class="text-muted mb-4">
+                        Aún no has subido ningún archivo de audio para analizar.<br>
+                        Comienza subiendo una grabación de tu clase.
+                    </p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i data-feather="upload" class="me-2"></i>
+                        Subir Primer Audio
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tips Section -->
+    {% if analyses %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i data-feather="lightbulb" class="me-2"></i>
+                        Consejos para un Mejor Análisis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i data-feather="mic" class="me-2"></i>Calidad del Audio</h6>
+                            <ul class="small">
+                                <li>Usa un micrófono externo si es posible</li>
+                                <li>Graba en un ambiente con poco ruido de fondo</li>
+                                <li>Mantén una distancia consistente del micrófono</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i data-feather="clock" class="me-2"></i>Duración Óptima</h6>
+                            <ul class="small">
+                                <li>15-30 minutos proporcionan análisis detallados</li>
+                                <li>Incluye diferentes tipos de actividades</li>
+                                <li>Evita grabaciones con largas pausas o silencio</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function exportAnalysis(analysisId) {
+    // This would be implemented to export analysis results
+    // For now, we'll redirect to the analysis view
+    window.location.href = `/analyze/${analysisId}`;
+}
+
+// Auto-refresh for processing analyses
+document.addEventListener('DOMContentLoaded', function() {
+    const processingBadges = document.querySelectorAll('.badge.bg-warning');
+    
+    if (processingBadges.length > 0) {
+        // Refresh page every 30 seconds if there are processing analyses
+        setTimeout(function() {
+            window.location.reload();
+        }, 30000);
+    }
+});
+</script>
+{% endblock %}
